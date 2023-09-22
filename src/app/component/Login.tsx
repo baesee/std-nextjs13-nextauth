@@ -12,7 +12,7 @@ export default function Login() {
   if (session) {
     return (
       <>
-        {session.user?.name}님 반가워요잉 <br />
+        {session.user?.nickName}님 반가워요잉 <br />
         <button onClick={() => signOut()}>로그아웃</button>
       </>
     );

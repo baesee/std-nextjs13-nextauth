@@ -4,12 +4,11 @@ import NextAuth, {DefaultSession, User} from 'next-auth';
 declare module 'next-auth' {
   interface Session extends DefaultSession {
     user?: {
-      // id?: string;
       memberNo?: string;
       nickName?: string;
-      role?: string;
-    } & DefaultSession['user'];
-    accessToken: string;
-    refreshToken: string;
+      roles?: string;
+    };
+    accessToken: string | unknown;
+    refreshToken: string | unknown;
   }
 }

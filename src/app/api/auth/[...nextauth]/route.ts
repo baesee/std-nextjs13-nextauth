@@ -1,6 +1,7 @@
 import {SocialLoginInfo, socialLogin} from '@/app/service/socialLogin';
 import NextAuth from 'next-auth';
 import KakaoProvider from 'next-auth/providers/kakao';
+//import jwtDecode from 'jwt-decode';
 
 // 전역 변수 선언
 let login_accessToken: string | null | undefined = null;
@@ -15,6 +16,12 @@ const handler = NextAuth({
       // clientSecret: 'G3L5CCFxb8Pt9Km3AAHx4m37fMH9LYps' || '',
     }),
   ],
+
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, //30일
+  },
+
   callbacks: {
     async signIn({user, account, profile, email, credentials}) {
       if (account?.access_token) {
@@ -33,11 +40,27 @@ const handler = NextAuth({
       return false;
     },
 
-    async session({session}) {
-      // session.accessToken = login_accessToken;
-      // session.refreshToken = login_refreshToken;
+    async jwt({token}) {
+      // const decodePayload = jwtDecode<any>(token.loginAccessToken + '');
+      token.loginAccessToken = login_accessToken;
+      token.loginRefreshToken = login_refreshToken;
+      // token.memberNo = decodePayload.memberNo;
+      // token.nickName = decodePayload.nickName;
+      // token.roles = decodePayload.roles;
+      return token;
+    },
+
+    async session({session, token}) {
+      if (session.user != undefined) {
+        session.user.memberNo = token.memberNo + '';
+        session.user.nickName = token.nickName + '';
+        session.user.roles = token.roles + '';
+        session.accessToken = token.loginAccessToken;
+        session.refreshToken = token.loginRefreshToken;
+      }
 
       console.log('로그인 완료 된 세션 객체 보기 : ', session);
+
       return session;
     },
   },
